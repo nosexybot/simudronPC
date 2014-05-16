@@ -39,7 +39,6 @@ float giroscopoX, giroscopoY, giroscopoZ;
 Terreno terreno;
 float[] parametros;
 
-long time;
 
 //*********************************************************************
 // función de incialización
@@ -68,9 +67,9 @@ void setup() {
     // preparando el terreno de juego
     terreno = new Terreno(this);
 	parametros = new float[4];
-	parametros = {0,0,0,0};
+    for (int i = 0; i < 4; i++)
+        parametros[i] = 0;
 
-    time = millis();
     tiempo_ant = millis();
 }
 
@@ -118,12 +117,9 @@ void draw() {
 			break;
 		case JUEGO:
 		//*******************************************************************************************
-			background(50);
+			background(#00BFFF);
 			directionalLight(255,255,255,1,1,1);
 			ambientLight(250, 250, 250);
-
-			long t = millis() - time;
-			time = millis();
 
 			// actualizar direccion de la cámara
 			float achange = 0, hchange = 0;
@@ -200,11 +196,11 @@ void keyPressed()
 {
 	//jostick izquierdo
 	if (key == 'a'){
-		parametros[1] = -3;
+		parametros[1] = -1;
 	}
 
 	if (key == 'd'){
-		parametros[1] = 3;
+		parametros[1] = 1;
 	}
 
 	if (key == 'w'){
@@ -219,24 +215,26 @@ void keyPressed()
 
 	// joystick derecho
 	if (keyCode == UP){
-		parametros[3] = 3;
+		parametros[3] = 1;
 	}
 
 	if (keyCode == DOWN){
-		parametros[3] = -3;
+		parametros[3] = -1;
 	}
 
 	if (keyCode == LEFT){
-		parametros[2] = -3;
+		parametros[2] = -1;
 	}
 
 	if (keyCode == RIGHT){
-		parametros[2] = 3;
+		parametros[2] = 1;
 	}
 
 }
 
 void keyReleased() {
-	for (int i = 1; i < 4, i++)
+	for (int i = 1; i < 4; i++)
 		parametros[i] = 0;
+    if (key == 'q')
+        exit();
 }
