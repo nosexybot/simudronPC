@@ -47,7 +47,7 @@ float[] parametros;
 void setup() {
     // Tamaño de la imagen de background y orientación
     //size(displayWidth, displayHeight);
-    size(850, 480, P3D);
+    size(1280, 800, P3D);
 
     // inicialización del objeto imagen con ruta y tamaño del display
     imagen = new Imagenes(width, height);
@@ -127,7 +127,10 @@ void draw() {
 				achange = (mouseX - pmouseX);
 				hchange = (mouseY - pmouseY);
 			}
+			
+			// lanza el juego
 			terreno.calcular(parametros);
+			terreno.calcularFisica();
 			terreno.dibuja();
 
 			break;

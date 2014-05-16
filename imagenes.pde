@@ -35,26 +35,26 @@ final String imagePrefix = "simudron";
 
 class Imagenes
 {
-  public PImage background, background_blur;
-  public PImage[] vImagenes;
-  
-  public Imagenes(int ancho, int alto)
-  {   
-    background = loadImage("background.png");
-    background_blur = loadImage("background_blur.png");
-    
-    float fAncho = ancho / (float)background.width;
-    float fAlto = alto / (float)background.height;
+	public PImage background, background_blur;
+	public PImage[] vImagenes;
 
-    background.resize(ancho, alto);
-    background_blur.resize(ancho, alto);
-    
-    vImagenes = new PImage[nImagenes];
-    String filename;
-    for (int i = 1; i < nImagenes; i++) {
-      filename = imagePrefix + nf(i, 2) + ".png";
-      vImagenes[i] = loadImage(filename);
-      vImagenes[i].resize((int)(vImagenes[i].width*fAncho), (int)(vImagenes[i].height*fAlto));
-    }
-  }
-}
+	public Imagenes(int ancho, int alto)
+	{   
+		background = loadImage("background.png");
+		background_blur = loadImage("background_blur.png");
+
+		float fAncho = ancho / (float)background.width;
+		float fAlto = alto / (float)background.height;
+
+		background.resize(ancho, alto);
+		background_blur.resize(ancho, alto);
+
+		vImagenes = new PImage[nImagenes];
+		String filename;
+		for (int i = 1; i < nImagenes; i++) {
+			filename = imagePrefix + nf(i, 2) + ".png";
+			vImagenes[i] = loadImage(filename);
+			vImagenes[i].resize((int)(vImagenes[i].width*fAncho), (int)(vImagenes[i].height*fAlto));
+		}
+	}
+};
