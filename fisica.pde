@@ -39,7 +39,7 @@ class Fisica {
 			intermedio = (consigna - consigna_ant) * ( 1 - exponente_tau_30[contador]);
 		else 
 			intermedio = consigna - consigna_ant;
-	*/		
+	*/	
         return consigna_ant + intermedio;
     }
 };

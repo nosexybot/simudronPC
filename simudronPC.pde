@@ -129,8 +129,8 @@ void draw() {
 			}
 			
 			// lanza el juego
-			terreno.calcular(parametros);
-			terreno.calcularFisica();
+			terreno.calcula(parametros);
+			terreno.calculaFisica();
 			terreno.dibuja();
 
 			break;
@@ -218,19 +218,19 @@ void keyPressed()
 
 	// joystick derecho
 	if (keyCode == UP){
-		parametros[3] = 1;
+		parametros[3] = 5;
 	}
 
 	if (keyCode == DOWN){
-		parametros[3] = -1;
+		parametros[3] = -5;
 	}
 
 	if (keyCode == LEFT){
-		parametros[2] = -1;
+		parametros[2] = -4;
 	}
 
 	if (keyCode == RIGHT){
-		parametros[2] = 1;
+		parametros[2] = 4;
 	}
 
 }
