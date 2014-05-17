@@ -121,7 +121,7 @@ class Terreno {
         print ("rotacion dron Z: ");
         print (dron_rot.z);
         print ("   fisicaR cam Z: ");
-        println (dron_giro.z);      
+        println (dron_giro.z) ;      
     */
 
             print ("cam_rot.y: ");
