@@ -19,7 +19,7 @@ class Terreno {
     float horizon = 500;
     long time;
     float giro_camara_acum = 0;
-    int distancia_dron = 30;
+    int distancia_dron = 15;
     float pos_Y_comun, pos_X_dron, pos_Z_dron;
         
     // posición de dron y cámara;
@@ -128,12 +128,12 @@ class Terreno {
         print (dron_rot.z);
         print ("   fisicaR cam Z: ");
         println (dron_giro.z) ;      
-    */  print ("cam_rot.y: ");
+        print ("cam_rot.y: ");
         print (cam_rot.y);    
         print ("    dron_rot.y: ");
         println (dron_rot.y%(2*PI));
         println (quad.getRotVec());
-            
+    */        
         // Set the camera view before drawing
         cam.camera();
         
@@ -144,7 +144,7 @@ class Terreno {
         quad.moveTo(dron_pos);
         quad.rotateTo(dron_giro);
     //    quad.rotateTo(dron_rot);
-    //  translate(pos_X_dron, pos_Y_comun + 5, pos_Z_dron);
+    //    translate(pos_X_dron, pos_Y_comun + 5, pos_Z_dron);
     //    rotateX(dron_rot.x);
     //    rotateY(dron_rot.y);
     //    rotateZ(dron_rot.z);
@@ -258,13 +258,12 @@ class Terreno {
 	
 	void calculaColision() {
 		// ecuación a satisfacer por los puntos de un toroide
-		// x^2 + y^2 = (RadioToroide + (radioMenor^2 - z^2)^(1/2))^(1/2)
+		// x^2 + y^2 = ( RadioToroide + (radioMenor^2 - z^2)^(1/2) )^2
  		for (int i = 0; i < aros.numeroAros; i++) {
-			PVector aro_pos = aros.aros[i].getPosVec();
-			float izq = pow(dron_pos.x - aro_pos.x, 2) + pow(dron_pos.y - aro_pos.y, 2);
-			float der = sqrt(20 + sqrt(pow(5,2) + pow(dron_pos.z - aro_pos.z, 2)));
+			float izq = pow(dron_pos.x - aros.posAros[i].x, 2) + pow(dron_pos.y - aros.posAros[i].y, 2);
+			float der = pow(15 + sqrt(pow(15,2) + pow(dron_pos.z - aros.posAros[i].z, 2)), 2);
 			if (izq == der) {
-				colision = true;
+				//colision = true;
 				dron_pos = new PVector (0,-10,distancia_dron);
 				cam_pos = new PVector (0,-15,0);
 			}

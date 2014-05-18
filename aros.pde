@@ -22,8 +22,8 @@ class Aros {
             // Create the train engine
             aros[i] = new Toroid(simudron, 50, 50, orientation, centreOfRotation);
             aros[i].rotateToX(radians(random(-5, 5)));
-            aros[i].rotateToY(radians(random(-30, 30)));
-            aros[i].setRadius(5/*grosor anillo*/, 5 /*profundidad*/, 20 /*tamaño global*/);
+            aros[i].rotateToY(radians(random(-70, 70)));
+            aros[i].setRadius(3/*grosor anillo*/, 3 /*profundidad*/, 15 /*tamaño global*/);
             aros[i].moveTo(getRandomPosOnTerrain(terrain, terrainSize, i/*, 50*/));
         //    if(i == numeroAros - 1)
             if (i%2 == 0)

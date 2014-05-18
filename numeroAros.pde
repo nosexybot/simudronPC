@@ -7,7 +7,7 @@ class Numeros implements I_Shape {
     
     Numeros (PApplet simudron, int i) {
         // llamando al objeto OBJObject
-        numero = new OBJModel(simudron, i + ".obj", "relative", TRIANGLES);
+        numero = new OBJModel(simudron, i + ".obj");//, "relative", TRIANGLES);
         
         numero.disableDebug();
         
