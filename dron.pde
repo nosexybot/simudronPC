@@ -16,7 +16,7 @@ class Dron implements I_Shape {
         // activando la salida depurada
         quadracopter.disableDebug();
         // escalado del modelo para ajustarlo a la pantalla
-        quadracopter.scale(0.5);
+        quadracopter.scale(0.15);
         noStroke();
     }
     

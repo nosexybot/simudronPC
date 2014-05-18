@@ -10,6 +10,7 @@ class Terreno {
     TerrainCam cam;
     Dron dron;
     Xshape quad;
+	Aros aros;
     
     // variables de control
     int camHoversAt = 5;
@@ -18,7 +19,7 @@ class Terreno {
     float horizon = 500;
     long time;
     float giro_camara_acum = 0;
-    int distancia_dron = 75;
+    int distancia_dron = 30;
     float pos_Y_comun, pos_X_dron, pos_Z_dron;
         
     // posición de dron y cámara;
@@ -68,6 +69,9 @@ class Terreno {
         dron = new Dron (simudron);
         quad = new Xshape(simudron);
         quad.setXshape(dron);
+		
+		// se crean los aros con los números dentro
+		aros = new Aros(terrain, terrainSize, 1, simudron);
         
         // inicialización de PVectores de cámara y dron
         dron_pos = new PVector (0,-10,distancia_dron);
@@ -146,7 +150,8 @@ class Terreno {
     //    rotateZ(dron_rot.z);
         quad.draw();
     //    popMatrix();
-
+	
+		aros.pintarNumeros();
         terrain.draw();
 
     }
@@ -242,11 +247,27 @@ class Terreno {
         
         // fisica del dron
         dron_mov.x = desplazamientoX.getValor(dron_pos.x);
-    //  dron_mov.y = pos_Y_comun + 5;
+    //    dron_mov.y = pos_Y_comun + 5;
         dron_pos.y = pos_Y_comun + 5;
         dron_mov.z = desplazamientoZ.getValor(dron_pos.z);
         dron_giro.x = giroDronX.getValor(dron_rot.x);
-        dron_giro.y = giroDronY.getValor(dron_rot.y);
+    //    dron_giro.y = giroDronY.getValor(dron_rot.y);
+		dron_giro.y = dron_rot.y;
         dron_giro.z = giroDronZ.getValor(dron_rot.z);
     }
+	
+	void calculaColision() {
+		// ecuación a satisfacer por los puntos de un toroide
+		// x^2 + y^2 = (RadioToroide + (radioMenor^2 - z^2)^(1/2))^(1/2)
+ 		for (int i = 0; i < aros.numeroAros; i++) {
+			PVector aro_pos = aros.aros[i].getPosVec();
+			float izq = pow(dron_pos.x - aro_pos.x, 2) + pow(dron_pos.y - aro_pos.y, 2);
+			float der = sqrt(20 + sqrt(pow(5,2) + pow(dron_pos.z - aro_pos.z, 2)));
+			if (izq == der) {
+				colision = true;
+				dron_pos = new PVector (0,-10,distancia_dron);
+				cam_pos = new PVector (0,-15,0);
+			}
+		}
+	}
 };

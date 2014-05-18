@@ -131,6 +131,7 @@ void draw() {
 			// lanza el juego
 			terreno.calcula(parametros);
 			terreno.calculaFisica();
+			terreno.calculaColision();
 			terreno.dibuja();
 
 			break;
