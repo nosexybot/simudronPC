@@ -26,9 +26,11 @@ class Terreno {
     PVector dron_rot;
     PVector dron_giro;
     PVector dron_mov;
+    PVector dron_dir;
     PVector cam_pos;
     PVector cam_pos_intermedio;
     PVector cam_rot;
+    PVector cam_dir;
     
     // física para movimientos
     Fisica elevacion;
@@ -72,9 +74,11 @@ class Terreno {
         dron_rot = new PVector (0,PI,0);
         dron_giro = new PVector (0,PI,0);
         dron_mov = new PVector (0,-10,distancia_dron);
+        dron_dir = new PVector (0,0,1);
         cam_pos = new PVector (0,-15,0);
         cam_pos_intermedio = new PVector (0,-15, 0);
         cam_rot = new PVector (0,PI,0);
+        cam_dir = new PVector (0,0,1);
         
         cam.eye(cam_pos);
         
@@ -92,8 +96,6 @@ class Terreno {
     
     void dibuja () {
     //    cam.eye(cam_pos);
-        // Set the camera view before drawing
-        cam.camera();
     /*    
         print (dron_rot.y);
         print ("      ");
@@ -122,18 +124,22 @@ class Terreno {
         print (dron_rot.z);
         print ("   fisicaR cam Z: ");
         println (dron_giro.z) ;      
-    */
-
-            print ("cam_rot.y: ");
-            println (cam_rot.y);    
-
+    */  print ("cam_rot.y: ");
+        print (cam_rot.y);    
+        print ("    dron_rot.y: ");
+        println (dron_rot.y%(2*PI));
+        println (quad.getRotVec());
+            
+        // Set the camera view before drawing
+        cam.camera();
+        
     //    float altura = terrain.getHeight(0, 75);
     //    pushMatrix();
     //    quad.moveTo(pos_X_dron, pos_Y_comun + 5, pos_Z_dron);
     //    quad.moveTo(dron_mov);
         quad.moveTo(dron_pos);
-    //    quad.rotateTo(dron_giro);
-        quad.rotateTo(dron_rot);
+        quad.rotateTo(dron_giro);
+    //    quad.rotateTo(dron_rot);
     //  translate(pos_X_dron, pos_Y_comun + 5, pos_Z_dron);
     //    rotateX(dron_rot.x);
     //    rotateY(dron_rot.y);
@@ -173,17 +179,22 @@ class Terreno {
         // movimiento de desplazamiento lateral
         if (parametros[2] != 0) {
             //TODO movimiento lateral y rotación sobre eje z de dron
-            float factor = map (parametros[2], -10, 10, -0.45, 0.45);
+            float factor = map(parametros[2], -10, 10, -0.45, 0.45);
             float aux = dron_rot.y % 2*PI;
             if (aux >= 1.5*PI && aux < 0.5*PI)
                 dron_rot.z = PI * factor * (-1);
             else
                 dron_rot.z = PI * factor;
-
-            dron_pos.x -= factor * 3 * cos(dron_rot.y-2*(PI-dron_rot.y%(2*PI))); //parametros[2];
-            dron_pos.z -= factor * 3 * sin(dron_rot.y-2*(PI-dron_rot.y%(2*PI))); //parametros[2];
-            cam_pos.x -= factor * 3 * cos(cam_rot.y-2*(PI-cam_rot.y%(2*PI))); //parametros[2];
-            cam_pos.z -= factor * 3 * sin(cam_rot.y-2*(PI-cam_rot.y%(2*PI))); //parametros[2];
+            
+            dron_dir.set(0,0,1);
+            dron_dir.x = dron_dir.x * cos(dron_rot.y) - dron_dir.z * cos(dron_rot.y);
+            dron_dir.y = 0;
+            dron_dir.z = dron_dir.x * sin(dron_rot.y) + dron_dir.z * sin(dron_rot.y);
+            dron_dir.normalize();
+            dron_dir.mult(-factor * 3); //parametros[2]);
+            dron_pos = PVector.add(dron_pos, dron_dir);
+        
+            cam_pos = PVector.add(cam_pos, dron_dir);
         }
         else {
             dron_rot.z = 0;
@@ -194,14 +205,22 @@ class Terreno {
             //TODO movimiento frontal y rotación sobre eje x de dron
             float factor = map (parametros[3], -10, 10, -0.40, 0.40);
             float aux = dron_rot.y % 2*PI;
-            if (aux >= 0 && aux < PI){
-                dron_rot.x = PI * factor;  //parametros[3];
+            if (aux <= 1.5*PI && aux > 0.5*PI){
+                dron_rot.x = PI * factor * (-1);  //parametros[3];
             }
             else{
-                dron_rot.x = PI * factor * (-1);  //parametros[3] * (-1);
+                dron_rot.x = PI * factor;  //parametros[3] * (-1);
             }
-            dron_pos.z += factor * 3; //parametros[3];
-			cam_pos.z += factor * 3; //parametros[2];
+
+            dron_dir.set(0,0,1);
+            dron_dir.x = dron_dir.x * cos(dron_rot.y + 0.5*PI) - dron_dir.z * cos(dron_rot.y + 0.5*PI);
+            dron_dir.y = 0;
+            dron_dir.z = dron_dir.x * sin(dron_rot.y + 0.5*PI) + dron_dir.z * sin(dron_rot.y + 0.5*PI);
+            dron_dir.normalize();
+            dron_dir.mult(-factor * 3); //parametros[3]);
+            dron_pos = PVector.add(dron_pos, dron_dir);
+        
+            cam_pos = PVector.add(cam_pos, dron_dir);   
         } 
         else {
             dron_rot.x = 0;
@@ -211,20 +230,23 @@ class Terreno {
     void calculaFisica(){
         pos_Y_comun = elevacion.getValor(cam_pos.y);
         // fisica de la camara
-        cam_pos_intermedio.x = desplazamientoCamX.getValor(cam_pos.x);
+    //    cam_pos_intermedio.x = desplazamientoCamX.getValor(cam_pos.x);
+		cam_pos_intermedio.x = cam_pos.x;
 		cam_pos_intermedio.y = pos_Y_comun;
-		cam_pos_intermedio.z = desplazamientoCamZ.getValor(cam_pos.z);
-	//	cam.rotateViewTo(rotacion_cam.getValor(1.5*PI-cam_rot.y));
-	//	cam.eye(cam_pos_intermedio);
-        cam.eye(cam_pos);
+	//	  cam_pos_intermedio.z = desplazamientoCamZ.getValor(cam_pos.z);
+		cam_pos_intermedio.z = cam_pos.z;
+    //    cam.rotateViewTo(rotacion_cam.getValor(1.5*PI-cam_rot.y));
+        cam.eye(cam_pos_intermedio);
+    //    cam.eye(cam_pos);
         cam.rotateViewTo(1.5*PI-cam_rot.y);
         
         // fisica del dron
         dron_mov.x = desplazamientoX.getValor(dron_pos.x);
-		dron_mov.y = pos_Y_comun + 5;
-		dron_mov.z = desplazamientoZ.getValor(dron_pos.z);
-		dron_giro.x = giroDronX.getValor(dron_rot.x);
+    //  dron_mov.y = pos_Y_comun + 5;
+        dron_pos.y = pos_Y_comun + 5;
+        dron_mov.z = desplazamientoZ.getValor(dron_pos.z);
+        dron_giro.x = giroDronX.getValor(dron_rot.x);
         dron_giro.y = giroDronY.getValor(dron_rot.y);
-		dron_giro.z = giroDronZ.getValor(dron_rot.z);
+        dron_giro.z = giroDronZ.getValor(dron_rot.z);
     }
 };
