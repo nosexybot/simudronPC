@@ -47,7 +47,7 @@ float[] parametros;
 void setup() {
     // Tamaño de la imagen de background y orientación
     //size(displayWidth, displayHeight);
-    size(1280, 800, P3D);
+    size(800, 500, P3D);
 
     // inicialización del objeto imagen con ruta y tamaño del display
     imagen = new Imagenes(width, height);
@@ -66,8 +66,8 @@ void setup() {
 
     // preparando el terreno de juego
     terreno = new Terreno(this);
-	parametros = new float[4];
-    for (int i = 0; i < 4; i++)
+	parametros = new float[5];
+    for (int i = 0; i < 5; i++)
         parametros[i] = 0;
 
     tiempo_ant = millis();
@@ -165,14 +165,18 @@ void oscEvent(OscMessage theOscMessage) {
 	// datos de sensores
 	if (theOscMessage.checkTypetag("fffi")) { //acelerometro
 		acelerometroX = theOscMessage.get(0).floatValue();
+        parametros[3] = acelerometroX;
 		acelerometroY = theOscMessage.get(1).floatValue();
+        parametros[2] = acelerometroY;
 		acelerometroZ = theOscMessage.get(2).floatValue();
+        parametros[0] += acelerometroZ;
 	}
 
 	if (theOscMessage.checkTypetag("fff")) { //giroscopo
 		giroscopoX = theOscMessage.get(0).floatValue();
 		giroscopoY = theOscMessage.get(1).floatValue();
 		giroscopoZ = theOscMessage.get(2).floatValue();
+        parametros[1] = giroscopoZ;
 	}
 
 	// cambios de estado
@@ -233,11 +237,15 @@ void keyPressed()
 	if (keyCode == RIGHT){
 		parametros[2] = 4;
 	}
+    
+    if (key == 'r') {
+        parametros[4] = 2;
+    }
 
 }
 
 void keyReleased() {
-	for (int i = 1; i < 4; i++)
+	for (int i = 1; i < 5; i++)
 		parametros[i] = 0;
     if (key == 'q')
         exit();

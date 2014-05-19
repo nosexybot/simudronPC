@@ -10,7 +10,7 @@ class Terreno {
     TerrainCam cam;
     Dron dron;
     Xshape quad;
-	Aros aros;
+    Aros aros;
     
     // variables de control
     int camHoversAt = 5;
@@ -69,9 +69,9 @@ class Terreno {
         dron = new Dron (simudron);
         quad = new Xshape(simudron);
         quad.setXshape(dron);
-		
-		// se crean los aros con los números dentro
-		aros = new Aros(terrain, terrainSize, 1, simudron);
+        
+        // se crean los aros con los números dentro
+        aros = new Aros(terrain, terrainSize, 1, simudron);
         
         // inicialización de PVectores de cámara y dron
         dron_pos = new PVector (0,-10,distancia_dron);
@@ -79,8 +79,8 @@ class Terreno {
         dron_giro = new PVector (0,PI,0);
         dron_mov = new PVector (0,-10,distancia_dron);
         dron_dir = new PVector (0,0,1);
-        cam_pos = new PVector (0,-15,0);
-        cam_pos_intermedio = new PVector (0,-15, 0);
+        cam_pos = new PVector (0,-13,0);
+        cam_pos_intermedio = new PVector (0,-13, 0);
         cam_rot = new PVector (0,PI,0);
         cam_dir = new PVector (0,0,1);
         
@@ -121,8 +121,8 @@ class Terreno {
         print ("   fisicaR dron X: ");
         println (dron_giro.x);
         print ("rotacion dron Y: ");
-        print (dron_rot.y);
-        print ("   fisicaR dron Y: ");
+    */    println (dron_rot.y);
+    /*    print ("   fisicaR dron Y: ");
         println (dron_giro.y);
         print ("rotacion dron Z: ");
         print (dron_rot.z);
@@ -134,6 +134,9 @@ class Terreno {
         println (dron_rot.y%(2*PI));
         println (quad.getRotVec());
     */        
+        println(aros.posAros[0]);
+        println(dron_pos);
+    
         // Set the camera view before drawing
         cam.camera();
         
@@ -144,14 +147,14 @@ class Terreno {
         quad.moveTo(dron_pos);
         quad.rotateTo(dron_giro);
     //    quad.rotateTo(dron_rot);
-    //    translate(pos_X_dron, pos_Y_comun + 5, pos_Z_dron);
     //    rotateX(dron_rot.x);
-    //    rotateY(dron_rot.y);
     //    rotateZ(dron_rot.z);
+    //    rotateY(dron_rot.y);
+    //    translate(pos_X_dron, pos_Y_comun + 5, pos_Z_dron);
         quad.draw();
     //    popMatrix();
-	
-		aros.pintarNumeros();
+    
+        aros.pintarNumeros();
         terrain.draw();
 
     }
@@ -161,10 +164,10 @@ class Terreno {
         // movimiento de elevación
         if (parametros[0] != 0) {
             //TODO elevación o bajada de dron
-            cam_pos.y = -(int(15 + parametros[0]*12));
-            if (cam_pos.y > -15)
-                cam_pos.y = -15;
-            dron_pos.y = cam_pos.y + 5;
+            cam_pos.y = -(int(13 + parametros[0]*12));
+            if (cam_pos.y > -13)
+                cam_pos.y = -13;
+            dron_pos.y = cam_pos.y + 3;
         }
        
         // movimiento de giro sobre sí mismo
@@ -177,8 +180,8 @@ class Terreno {
         //    cam.rotateViewTo(1.5*PI-cam_rot.y);
             dron_rot.y = cam_rot.y;
             
-            cam_pos.x = int(distancia_dron * sin(angulo + cam_rot.y)) + dron_pos.x;
-            cam_pos.z = int(distancia_dron * cos(angulo + cam_rot.y)) + dron_pos.z;
+            cam_pos.x = (distancia_dron * sin(angulo + cam_rot.y)) + dron_pos.x;
+            cam_pos.z = (distancia_dron * cos(angulo + cam_rot.y)) + dron_pos.z;
         }
         
         // movimiento de desplazamiento lateral
@@ -230,16 +233,20 @@ class Terreno {
         else {
             dron_rot.x = 0;
         }
+        
+        if (parametros[4] != 0) {
+            dron_rot.x += 0.2; 
+        }
     }
     
     void calculaFisica(){
         pos_Y_comun = elevacion.getValor(cam_pos.y);
         // fisica de la camara
     //    cam_pos_intermedio.x = desplazamientoCamX.getValor(cam_pos.x);
-		cam_pos_intermedio.x = cam_pos.x;
-		cam_pos_intermedio.y = pos_Y_comun;
-	//	  cam_pos_intermedio.z = desplazamientoCamZ.getValor(cam_pos.z);
-		cam_pos_intermedio.z = cam_pos.z;
+        cam_pos_intermedio.x = cam_pos.x;
+        cam_pos_intermedio.y = pos_Y_comun;
+    //    cam_pos_intermedio.z = desplazamientoCamZ.getValor(cam_pos.z);
+        cam_pos_intermedio.z = cam_pos.z;
     //    cam.rotateViewTo(rotacion_cam.getValor(1.5*PI-cam_rot.y));
         cam.eye(cam_pos_intermedio);
     //    cam.eye(cam_pos);
@@ -252,21 +259,30 @@ class Terreno {
         dron_mov.z = desplazamientoZ.getValor(dron_pos.z);
         dron_giro.x = giroDronX.getValor(dron_rot.x);
     //    dron_giro.y = giroDronY.getValor(dron_rot.y);
-		dron_giro.y = dron_rot.y;
+        dron_giro.y = dron_rot.y;
         dron_giro.z = giroDronZ.getValor(dron_rot.z);
     }
-	
-	void calculaColision() {
-		// ecuación a satisfacer por los puntos de un toroide
-		// x^2 + y^2 = ( RadioToroide + (radioMenor^2 - z^2)^(1/2) )^2
- 		for (int i = 0; i < aros.numeroAros; i++) {
-			float izq = pow(dron_pos.x - aros.posAros[i].x, 2) + pow(dron_pos.y - aros.posAros[i].y, 2);
-			float der = pow(15 + sqrt(pow(15,2) + pow(dron_pos.z - aros.posAros[i].z, 2)), 2);
-			if (izq == der) {
-				//colision = true;
-				dron_pos = new PVector (0,-10,distancia_dron);
-				cam_pos = new PVector (0,-15,0);
-			}
-		}
-	}
+    
+    void calculaColision() {
+        // ecuación a satisfacer por los puntos de un toroide
+        // x^2 + y^2 = ( RadioToroide + (radioMenor^2 - z^2)^(1/2) )^2
+        for (int i = 0; i < aros.numeroAros; i++) {
+            float izq = pow(dron_pos.x - aros.posAros[i].x, 2) + pow(dron_pos.y - aros.posAros[i].y, 2);
+            println(izq);
+            float der = pow(15 + sqrt(pow(15,2) + pow(dron_pos.z - aros.posAros[i].z, 2)), 2);
+            float der_aux1 = pow(15 + 3 + 3, 2);
+            float der_aux2 = pow(15 - 3 - 3, 2);
+            float z_aux = dron_pos.z - aros.posAros[i].z;
+            if (izq <= der_aux1 && izq >= der_aux2) {
+                if (z_aux >= (-1)*(3+1.5) && z_aux <= (3+1.5)) { 
+                    //colision = true;
+                    println("colisión");
+                    dron_pos = new PVector (0,-10,distancia_dron);
+                    cam_pos = new PVector (0,-13,0);
+                    delay(1000);
+                    return;
+                }
+            }
+        }
+    }
 };
