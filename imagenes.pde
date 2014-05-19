@@ -28,9 +28,13 @@
 * 0 (200 x 200) -> 37
 * 1 (100 x 200) -> 38
 * Resto de numeros (200 x 200) -> 39 - 46
+* "colisión" (460 x 120) -> 47
+* "fin nivel incompleto" -> 48
+* "fin nivel completo" -> 49
+* bola joystick otro color -> 50
 **************************************************/
 
-final int nImagenes = 47;
+final int nImagenes = 51;
 final String imagePrefix = "simudron";
 
 class Imagenes
