@@ -218,7 +218,7 @@ void oscEvent(OscMessage theOscMessage) {
 		parametros[3] += map(joystickDerY, -recorrido, recorrido, -10,10);
 	}
 
-	// cambios de estado
+	// cambios de estado y niveles de juego
 	if (theOscMessage.checkTypetag("i")) {
 		switch (theOscMessage.get(0).intValue()) {
 			case 0:

@@ -51,6 +51,9 @@ class Terreno {
     Fisica giroDronY;
     Fisica giroDronZ;
 
+	//***********************************************************************************
+	// constructor de la clase terreno
+	//***********************************************************************************
     Terreno(PApplet simudron, NetAddress ipR) {
         // objeto para enviar mensajes
         ipRemota = ipR;
@@ -117,6 +120,9 @@ class Terreno {
         giroDronZ = new Fisica();
     }
 
+	//***********************************************************************************
+	// método para el dibujado de los elementos del terreno y el terreno
+	//***********************************************************************************
     void dibuja () {
         println (dron_rot.y);
         println(aros.posAros[0]);
@@ -156,6 +162,9 @@ class Terreno {
         terrain.draw();
     }
 
+	//******************************************************************************************
+	// método para calcular posiciones y giros del dron y la cámara en función datos recibidos
+	//******************************************************************************************
     void calcula (float[] parametros)
     {
         // movimiento de elevación
@@ -229,6 +238,11 @@ class Terreno {
         }
     }
 
+	
+	//***********************************************************************************
+	// método que calcula la física de cada movimiento del dron y la camara
+	// según el modelo matemático del comportamiento de un motor eléctrico
+	//***********************************************************************************
     void calculaFisica(){
         pos_Y_comun = elevacion.getValor(cam_pos.y);
         // fisica de la camara
@@ -253,6 +267,10 @@ class Terreno {
         dron_giro.z = giroDronZ.getValor(dron_rot.z);
     }
 
+	
+	//***********************************************************************************
+	// método para control de colisiones y paso por el interior de los aros
+	//***********************************************************************************	
     void calculaColision() {
         // ecuación a satisfacer por los puntos de un toroide
         // x^2 + y^2 = ( RadioToroide + (radioMenor^2 - z^2)^(1/2) )^2
