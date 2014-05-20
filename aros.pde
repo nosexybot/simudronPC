@@ -45,6 +45,10 @@ class Aros {
         }
     }
 
+    
+    //***********************************************************************************
+    // pintar números en centro de aros
+    //***********************************************************************************
     public void pintarNumeros()
     {
         rotateNum += 5;
@@ -57,13 +61,11 @@ class Aros {
             numeros[i].draw();
         }
     }
-    /**
-     * Get a random position on the terrain avoiding the edges
-     * @param t the terrain
-     * @param tsize the size of the terrain
-     * @param height height above terrain
-     * @return
-     */
+
+    
+    //***********************************************************************************
+    // obtener posición aleatoria en terreno
+    //***********************************************************************************
     public PVector getRandomPosOnTerrain(Terrain t, float tsize/*, float height*/, int nAro){
         //PVector p = new PVector(random(-tsize/2.1f, tsize/2.1f), 0, random(-tsize/2.1f, tsize/2.1f));
         float dist = (tsize/2.1f) / numeroAros + 1;
@@ -79,8 +81,3 @@ class Aros {
     }
 }
 
-//en la funcion debuja del terreno
-// aros.pintarNumeros();
-
-//en el constructor del terreno
-//aros = new Aros(terrain, terrainSize, 1, simudron);

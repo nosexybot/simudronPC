@@ -14,6 +14,7 @@ class Terreno {
     Box pausado;     //caja para cartel "juego en pausa"
     Box colision;    //caja para cartel "colisión"
     Imagenes imagen;
+    OscP5 oscP5;
     NetAddress ipRemota;
 
     // variables de control
@@ -27,7 +28,7 @@ class Terreno {
     float pos_Y_comun, pos_X_dron, pos_Z_dron;
     boolean pausaJuego = false, colisionAro = false, finJuego = false;
     int[] aroPasado = {0,0,0,0,0,0,0,0,0,0};
-	int contador = 0;
+    int contador = 0;
 
     // posición de dron y cámara;
     PVector dron_pos;
@@ -51,12 +52,13 @@ class Terreno {
     Fisica giroDronY;
     Fisica giroDronZ;
 
-	//***********************************************************************************
-	// constructor de la clase terreno
-	//***********************************************************************************
-    Terreno(PApplet simudron, NetAddress ipR) {
+    //***********************************************************************************
+    // constructor de la clase terreno
+    //***********************************************************************************
+    Terreno(PApplet simudron, NetAddress ipR, OscP5 osc) {
         // objeto para enviar mensajes
         ipRemota = ipR;
+        oscP5 = osc;
 
         // preparando el terreno de juego
         terrain = new Terrain(simudron, 60, terrainSize, horizon);
@@ -120,14 +122,10 @@ class Terreno {
         giroDronZ = new Fisica();
     }
 
-	//***********************************************************************************
-	// método para el dibujado de los elementos del terreno y el terreno
-	//***********************************************************************************
+    //***********************************************************************************
+    // método para el dibujado de los elementos del terreno y el terreno
+    //***********************************************************************************
     void dibuja () {
-        println (dron_rot.y);
-        println(aros.posAros[0]);
-        println(dron_pos);
-
         // Set the camera view before drawing
         cam.camera();
 
@@ -136,15 +134,15 @@ class Terreno {
         quad.rotateTo(dron_giro);
         quad.draw();
 
-        // pintar números dentro de los aros
+        // pintar números dentro de los aros -- ralentiza excesivamente el juego
     //    aros.pintarNumeros();
 
         // pintar el cartel de "pausa"
         if (pausaJuego){
-			pausado.moveTo(dron_pos.x, dron_pos.y-8, dron_pos.z);
+            pausado.moveTo(dron_pos.x, dron_pos.y-8, dron_pos.z);
             pausado.rotateTo(0,PI,0);
             pausado.draw();
-		}
+        }
 
         // pintar el cartel de "colisión"
         if (colisionAro) {
@@ -152,24 +150,24 @@ class Terreno {
             colision.rotateTo(0,PI,0);
             colision.draw();
             contador++;
-			if (contador >= 100) {
-				colisionAro = false;
-				contador = 0;
-			}
+            if (contador >= 200) {
+                colisionAro = false;
+                contador = 0;
+            }
         }
 
         // pintar el terreno global con todo dentro
         terrain.draw();
     }
 
-	//******************************************************************************************
-	// método para calcular posiciones y giros del dron y la cámara en función datos recibidos
-	//******************************************************************************************
+    //******************************************************************************************
+    // método para calcular posiciones y giros del dron y la cámara en función datos recibidos
+    //******************************************************************************************
     void calcula (float[] parametros)
     {
         // movimiento de elevación
         if (parametros[0] != 0) {
-            cam_pos.y = -(13 + parametros[0]);
+            cam_pos.y = -(13 + parametros[0]*5);
             if (cam_pos.y > -13)
                 cam_pos.y = -13;
             dron_pos.y = cam_pos.y + 3;
@@ -238,11 +236,11 @@ class Terreno {
         }
     }
 
-	
-	//***********************************************************************************
-	// método que calcula la física de cada movimiento del dron y la camara
-	// según el modelo matemático del comportamiento de un motor eléctrico
-	//***********************************************************************************
+    
+    //***********************************************************************************
+    // método que calcula la física de cada movimiento del dron y la camara
+    // según el modelo matemático del comportamiento de un motor eléctrico
+    //***********************************************************************************
     void calculaFisica(){
         pos_Y_comun = elevacion.getValor(cam_pos.y);
         // fisica de la camara
@@ -267,10 +265,10 @@ class Terreno {
         dron_giro.z = giroDronZ.getValor(dron_rot.z);
     }
 
-	
-	//***********************************************************************************
-	// método para control de colisiones y paso por el interior de los aros
-	//***********************************************************************************	
+    
+    //***********************************************************************************
+    // método para control de colisiones y paso por el interior de los aros
+    //***********************************************************************************   
     void calculaColision() {
         // ecuación a satisfacer por los puntos de un toroide
         // x^2 + y^2 = ( RadioToroide + (radioMenor^2 - z^2)^(1/2) )^2
@@ -293,6 +291,7 @@ class Terreno {
                     cam_pos = new PVector (0,-13,0);
                     dron_rot = new PVector (0,PI,0);
                     cam_rot = new PVector (0,PI,0);
+                    parametros[0] = 0;
 
                     // mensaje de colision a tablet
                     OscMessage miMensaje = new OscMessage("colision");
@@ -304,6 +303,7 @@ class Terreno {
             }
             // si no -> comprueba si está en el interior del cilindro anterior
             else if(izq < der_aux2) {
+            //    if (z_aux > 3+1.5){
                 if (z_aux >= (-1)*(3+1.5) && z_aux <= (3+1.5)) {
                     // marca el aro pasado
                     aroPasado[i] = 1;
@@ -318,6 +318,7 @@ class Terreno {
                     else
                         miMensaje.add(0);
                     oscP5.send(miMensaje, ipRemota);
+                
                 }
             }
         }

@@ -7,6 +7,9 @@
 import oscP5.*;
 import netP5.*;
 
+import shapes3d.utils.*;
+import shapes3d.animation.*;
+import shapes3d.*;
 import processing.opengl.*;
 
 //*********************************************************************
@@ -29,25 +32,30 @@ Imagenes imagen;
 // control de comunicaciones
 OscP5 oscP5;
 NetAddress ipRemota;
-String ipR = "192.168.1.3";
+String ipR = "147.156.175.89";
 
 // sensores
 float acelerometroX, acelerometroY, acelerometroZ;
 float giroscopoX, giroscopoY, giroscopoZ;
+float jx_ant, jy_ant, jz_ant, gz_ant;
 
 // terreno y aros
 Terreno terreno;
 float[] parametros;
 
+// cajas 3D para mostrar botones y texto como textura
+Box botonSalir;
+Box main;
+Box finJok;
+Box finJnok;
+
 
 //*********************************************************************
 // función de incialización
-
 //*********************************************************************
 void setup() {
     // Tamaño de la imagen de background y orientación
-    //size(displayWidth, displayHeight);
-    size(displayWidth, displayHeight, P3D); //800, 500, P3D);
+    size(1000, 625, P3D);//displayWidth, displayHeight, P3D); //800, 500, P3D);
 
     // inicialización del objeto imagen con ruta y tamaño del display
     imagen = new Imagenes(width, height);
@@ -56,22 +64,34 @@ void setup() {
     // establecimiento de estado de inicio de programa
     estado = CONECTANDO;
 
-    // comunicaciones
-	thread("comunicaciones");
-//    oscP5 = new OscP5(this, 12000);
-//    ipRemota = new NetAddress(ipR, 12000); 
+    // comunicaciones 
+    oscP5 = new OscP5(this, 12000);
+    ipRemota = new NetAddress(ipR, 12000); 
 
     // configuración inicial de los textos
     textAlign(CENTER, CENTER);
     textSize(24);
 
     // preparando el terreno de juego
-    terreno = new Terreno(this, ipRemota);
+    terreno = new Terreno(this, ipRemota, oscP5);
 	parametros = new float[5];
     for (int i = 0; i < 5; i++)
         parametros[i] = 0;
 
     tiempo_ant = millis();
+    
+    botonSalir = new Box(this,3,3,0);
+    botonSalir.setTexture(imagen.vImagenes[9], Box.FRONT);
+    botonSalir.drawMode(S3D.TEXTURE);
+    main = new Box(this,7,6,0);
+    main.setTexture(imagen.vImagenes[30], Box.FRONT);
+    main.drawMode(S3D.TEXTURE);
+    finJok = new Box(this,7,7,0);
+    finJok.setTexture(imagen.vImagenes[49], Box.FRONT);
+    finJok.drawMode(S3D.TEXTURE);
+    finJnok = new Box(this,7,7,0);
+    finJnok.setTexture(imagen.vImagenes[48], Box.FRONT);
+    finJnok.drawMode(S3D.TEXTURE);
 }
 
 //*********************************************************************
@@ -80,6 +100,9 @@ void setup() {
 void draw() {
     // ESTADOS de la aplicación
     //---------------------------------------------------------------------------------------------
+    print("estado: ");
+    println(estado);
+    
     switch(estado) {
       
 		case CONECTANDO:
@@ -87,8 +110,8 @@ void draw() {
 		// control de tiempo
 			long tiempo = millis();
 			// imagen de fondo inicial del juego
-			background(imagen.background);
-
+            background(imagen.background);
+            
 			// control de intermitencia de mensaje "espera de conexión"
 			if (tiempo - tiempo_ant > 1000) {
 				blinker = !blinker;
@@ -107,14 +130,20 @@ void draw() {
 				mouseX > 0.9*width - imagen.vImagenes[9].width/2 &&
 				mouseX < 0.9*width + imagen.vImagenes[9].width/2)
 				image(imagen.vImagenes[10], 0.9*width, 0.85*height);
-			else
-				image(imagen.vImagenes[9], 0.9*width, 0.85*height);
+			else {
+				//image(imagen.vImagenes[9], 0.9*width, 0.85*height);
+                botonSalir.moveTo(-6.6,-5,10);
+                botonSalir.draw();
+            }
 			break;
 		case MAIN:
 		//*******************************************************************************************
 			background(imagen.background_blur);
 			// primer dibujado del juego
-			image(imagen.vImagenes[30], 0.5*width, 0.5*height);
+		//	image(imagen.vImagenes[30], 0.5*width, 0.5*height);
+            main.moveTo(0,-10,10);
+            main.rotateTo(0,PI,0);
+            main.draw();
 			// puesta de la partida en disposición de juego
 			terreno.pausaJuego = false;
 			break;
@@ -159,13 +188,19 @@ void draw() {
 		//******************************************************************************************* 
 			background(imagen.background_blur);
 			// imagen de juego felizmente terminado
-			image(imagen.vImagenes[49], 0.5*width, 0.5*height);
+			//image(imagen.vImagenes[49], 0.5*width, 0.5*height);
+            finJok.moveTo(0,-10,10);
+            finJok.rotateTo(0,PI,0);
+            finJok.draw();
 			break;
 		case FINJUEGONOOK:
 		//******************************************************************************************* 
 			background(imagen.background_blur);
 			// imagen de juego terminado sin pasar por los aros obligatorios
-			image(imagen.vImagenes[48], 0.5*width, 0.5*height);
+			//image(imagen.vImagenes[48], 0.5*width, 0.5*height);
+            finJnok.moveTo(0,-10,10);
+            finJnok.rotateTo(0,0,0);
+            finJnok.draw();
 			break;
     }
     //---------------------------------------------------------------------------------------------
@@ -190,9 +225,11 @@ void mouseReleased() {
 //***********************************************************************************
 void oscEvent(OscMessage theOscMessage) {
 	// datos de sensores
+    //*******************************************************************************
+    // de acelerómetros y giróscopos
 	if (theOscMessage.checkTypetag("ffffii")) { //acelerometro
 		acelerometroX = theOscMessage.get(0).floatValue();
-        parametros[3] = acelerometroX;
+        parametros[3] = -acelerometroX;
 		acelerometroY = theOscMessage.get(1).floatValue();
         parametros[2] = acelerometroY;
 		acelerometroZ = theOscMessage.get(2).floatValue();
@@ -202,20 +239,29 @@ void oscEvent(OscMessage theOscMessage) {
 		if (botonDerPulsado > 0)
 		    parametros[0] = acelerometroZ;
 		if (botonIzqPulsado > 0)
-			parametros[1] = giroscopoZ;
+			parametros[1] = -giroscopoZ;
 		
 	}
 
+    // de joysticks
 	if (theOscMessage.checkTypetag("ffff")) { //giroscopo
 		int recorrido = imagen.vImagenes[6].height/2;
 		float joystickIzqX = theOscMessage.get(0).floatValue();
-		parametros[1] += map(joystickIzqX, -recorrido, recorrido, -10,10);
+        float joystickIzqX1 = joystickIzqX - jx_ant;
+        jx_ant = joystickIzqX;
+		parametros[1] += map(joystickIzqX1, -recorrido, recorrido, -10,10);
 		float joystickIzqY = theOscMessage.get(1).floatValue();
-		parametros[0] += map(joystickIzqY, -recorrido, recorrido, -10,10);
+        float joystickIzqY1 = joystickIzqY - jy_ant;
+        jy_ant = joystickIzqY;
+		parametros[0] += map(joystickIzqY1, -recorrido, recorrido, -10,10);
 		float joystickDerX = theOscMessage.get(2).floatValue();
-		parametros[2] += map(joystickDerX, -recorrido, recorrido, -10,10);
+        float joystickDerX1 = joystickDerX - jz_ant;
+        jx_ant = joystickIzqX;
+		parametros[2] += map(joystickDerX1, -recorrido, recorrido, -10,10);
 		float joystickDerY = theOscMessage.get(3).floatValue();
-		parametros[3] += map(joystickDerY, -recorrido, recorrido, -10,10);
+        float joystickDerY1 = joystickDerY - jx_ant;
+        gz_ant = joystickDerY;
+		parametros[3] += map(joystickDerY1, -recorrido, recorrido, -10,10);
 	}
 
 	// cambios de estado y niveles de juego
@@ -238,7 +284,9 @@ void oscEvent(OscMessage theOscMessage) {
 				estado = PAUSE;
 				terreno.pausaJuego = true;
 				break;
-			case 10:
+			
+            // nivel experto
+            case 10:
 				terreno.elevacion.tau = 15;
 				terreno.desplazamientoX.tau = 15;
 				terreno.desplazamientoZ.tau = 15;
@@ -249,7 +297,8 @@ void oscEvent(OscMessage theOscMessage) {
 				terreno.giroDronY.tau = 15;
 				terreno.giroDronZ.tau = 15;
 				break;
-			case 11:
+			// nivel intermedio
+            case 11:
 				terreno.elevacion.tau = 25;
 				terreno.desplazamientoX.tau = 25;
 				terreno.desplazamientoZ.tau = 25;
@@ -260,6 +309,7 @@ void oscEvent(OscMessage theOscMessage) {
 				terreno.giroDronY.tau = 25;
 				terreno.giroDronZ.tau = 25;
 				break;
+            // nivel novato
 			case 12:
 				terreno.elevacion.tau = 40;
 				terreno.desplazamientoX.tau = 40;
@@ -274,6 +324,9 @@ void oscEvent(OscMessage theOscMessage) {
 	}
 }
 
+//***********************************************************************************
+// control de juego local
+//***********************************************************************************
 void keyPressed()
 {
 	//jostick izquierdo
@@ -286,11 +339,11 @@ void keyPressed()
 	}
 
 	if (key == 'w'){
-		parametros[0] += 0.2;
+		parametros[0] += 0.4;
 	}
 
 	if (key == 's'){
-		parametros[0] -= 0.2;
+		parametros[0] -= 0.4;
 		if (parametros[0] < 0)
 			parametros[0] = 0;
 	}
@@ -325,8 +378,3 @@ void keyReleased() {
         exit();
 }
 
-// hilo para el arranque de las comunicaciones en segundo plano
-void comunicaciones() {
-    oscP5 = new OscP5(this, 12000);
-    ipRemota = new NetAddress(ipR, 12000);
-}
